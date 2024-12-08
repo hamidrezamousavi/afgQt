@@ -190,7 +190,7 @@ class MainWindow(QMainWindow):
     
     def export_button_click(self):
         self.file_dialog  = QFileDialog()
-        self.file_dialog.setFilter()
+        
         self.file_path = self.file_dialog.getSaveFileName()[0] 
         if not self.file_path:
             return
