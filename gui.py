@@ -65,6 +65,9 @@ class InputLine(QLineEdit):
         background: rgb(30,30,30);
         color: white;
         """)
+        self.returnPressed.connect(self.return_press)
+    def return_press(self):
+        self.focusNextChild()
 class RecButton(QPushButton):
     def __init__(self,*arg):
         super().__init__(*arg)
@@ -76,6 +79,9 @@ class RecButton(QPushButton):
         color: white;
 
         """)
+    def focusInEvent(self, a):
+        self.parent().parent().calculate_button_click()
+        
 
         
 
@@ -167,7 +173,7 @@ class MainWindow(QMainWindow):
         self.force_amount.setText(str(force))
         self.force_unit.setText(unit)
         
-        
+       
     def calculate_button_click(self):
         low = int(self.lower_range.text())
         upper = int(self.upper_range.text())
@@ -184,7 +190,8 @@ class MainWindow(QMainWindow):
     
     def export_button_click(self):
         self.file_dialog  = QFileDialog()
-        self.file_path = self.file_dialog.getSaveFileName(filter = 'csv')[0] 
+        self.file_dialog.setFilter()
+        self.file_path = self.file_dialog.getSaveFileName()[0] 
         if not self.file_path:
             return
         if not self.file_path.endswith('.csv'):
