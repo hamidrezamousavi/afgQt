@@ -1,5 +1,7 @@
 
 from statistics import mean
+import csv
+import itertools
 from PyQt5.QtWidgets import (
     QMainWindow,
     QPushButton,
@@ -7,9 +9,10 @@ from PyQt5.QtWidgets import (
     QGridLayout,
     QWidget,
     QLineEdit,
+    QFileDialog
 
 )
-from PyQt5.QtCore import QThreadPool
+from PyQt5.QtCore import QThreadPool, Qt
 from reader import ( Reader)
 from graphGui import Graph
 
@@ -62,7 +65,7 @@ class InputLine(QLineEdit):
         background: rgb(30,30,30);
         color: white;
         """)
-class CalculationButton(QPushButton):
+class RecButton(QPushButton):
     def __init__(self,*arg):
         super().__init__(*arg)
         self.setStyleSheet("""
@@ -93,19 +96,21 @@ class MainWindow(QMainWindow):
         self.force_unit = ForceUnitLabel(' ')
         self.graph = Graph()
         self.row_range_label = CalculationLabel('From')
-        self.lower_range = InputLine('10')
+        self.lower_range = InputLine('')
         self.upper_range_label = CalculationLabel('To')
-        self.upper_range = InputLine('120')
-        self.calculate_button = CalculationButton('Calculate')
+        self.upper_range = InputLine('')
+        self.calculate_button = RecButton('Calculate')
         self.calculate_button.clicked.connect(self.calculate_button_click)
         self.min_label = CalculationLabel('Min')
-        self.min_out = CalculationLabel(' 14.2 ')
+        self.min_out = CalculationLabel('')
         self.max_label = CalculationLabel('Max')
-        self.max_out = CalculationLabel('18.9   ')
+        self.max_out = CalculationLabel('')
         
         self.mean_label = CalculationLabel('Mean')
-        self.mean_out = CalculationLabel('16.3   ')
+        self.mean_out = CalculationLabel('')
         
+        self.export_button = RecButton('Export Data')
+        self.export_button.clicked.connect(self.export_button_click)
         self.layout = QGridLayout()
         
         self.layout.setContentsMargins(50,20,50,100)
@@ -116,7 +121,7 @@ class MainWindow(QMainWindow):
         
         self.layout.addWidget(self.force_unit,1,1)
         
-        self.layout.addWidget(self.graph,1,3)
+        self.layout.addWidget(self.graph,1,1,1,5)
         
         self.layout.addWidget(self.row_range_label,3 ,0 )
         self.layout.addWidget(self.lower_range,4 ,0 )
@@ -124,12 +129,21 @@ class MainWindow(QMainWindow):
         self.layout.addWidget(self.upper_range ,6 ,0 )
         self.layout.addWidget(self.calculate_button ,7 ,0 )
         self.layout.addWidget(self.min_label ,5 ,1 )
+        self.min_label.setAlignment(Qt.AlignHCenter)
         self.layout.addWidget(self.min_out ,6 ,1 )
+        self.min_out.setAlignment(Qt.AlignHCenter)
         self.layout.addWidget(self.max_label,5 ,2 )
+        self.max_label.setAlignment(Qt.AlignHCenter)
         self.layout.addWidget(self.max_out ,6 ,2 )
+        self.max_out.setAlignment(Qt.AlignHCenter)
         self.layout.addWidget(self.mean_label,5 ,3 )
+        self.mean_label.setAlignment(Qt.AlignHCenter)
         self.layout.addWidget(self.mean_out,6 ,3 )
-       # self.layout.setAlignment(Qt.AlignLeft )
+        self.mean_out.setAlignment(Qt.AlignHCenter)
+        
+        self.layout.addWidget(QLabel('                       '), 6,4)#spacer
+        self.layout.addWidget(self.export_button,7,5)
+        self.layout.setAlignment(Qt.AlignHCenter)
         self.w = QWidget()
         self.w.setLayout(self.layout)
         self.setCentralWidget(self.w)
@@ -167,7 +181,23 @@ class MainWindow(QMainWindow):
         self.min_out.setText('')
         self.max_out.setText('')
         self.mean_out.setText('')
-
+    
+    def export_button_click(self):
+        self.file_dialog  = QFileDialog()
+        self.file_path = self.file_dialog.getSaveFileName(filter = 'csv')[0] 
+        if not self.file_path:
+            return
+        if not self.file_path.endswith('.csv'):
+            self.file_path += '.csv'
+        
+        
+        with open(self.file_path, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile,dialect='excel', delimiter=';')
+            writer.writerows(
+                zip(self.samples,
+                self.forces,
+                itertools.repeat(self.unit))
+                )
 
    
 

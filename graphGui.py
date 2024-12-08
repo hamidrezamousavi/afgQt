@@ -28,7 +28,4 @@ class Graph(PlotWidget):
         self.sample_numbers = []
         self.forces = []
         self.line.setData(self.sample_numbers,self.forces)
-    def mousePressEvent(self, ev):
-        print('test')
-    def hoverEvent(self):
-        print('ssss')
+    
